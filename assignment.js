@@ -1,0 +1,131 @@
+class User {
+    constructor(id, name, email, password, phone, age) {
+        this.notebooks = [];
+        if (age < 18 || age > 60) {
+            throw new Error("Age must be between 18 and 60");
+        }
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.phone = phone;
+        this._age = age;
+    }
+    get age() {
+        return this._age;
+    }
+    set age(value) {
+        if (value < 18 || value > 60) {
+            throw new Error("Age must be between 18 and 60");
+        }
+        this._age = value;
+    }
+    getId() {
+        return this.id;
+    }
+    addNotebook(notebook) {
+        this.notebooks.push(notebook);
+    }
+    getNotebooks() {
+        return this.notebooks;
+    }
+    displayInfo() {
+        console.log(`Id: ${this.id}`);
+        console.log(`Name: ${this.name}`);
+        console.log(`Email: ${this.email}`);
+        console.log(`Phone: ${this.phone}`);
+        console.log(`Age: ${this._age}`);
+    }
+}
+class Admin extends User {
+    constructor(id, name, email, password, phone, age) {
+        super(id, name, email, password, phone, age);
+    }
+    manageNotes(notebook, noteId) {
+        const removed = notebook.removeNote(noteId);
+        if (removed) {
+            console.log(`Admin ${this.name} removed note ${noteId}`);
+        }
+        else {
+            console.log(`Note ${noteId} was not found`);
+        }
+        return removed;
+    }
+}
+class Note {
+    constructor(id, tittle, content, author) {
+        this.id = id;
+        this.tittle = tittle;
+        this.content = content;
+        this.author = author;
+        this.userId = author.getId();
+    }
+    preview() {
+        if (this.content.length > 30) {
+            return this.content.substring(0, 30) + "...";
+        }
+        return this.content;
+    }
+}
+class NoteBook {
+    constructor(title) {
+        this.notes = [];
+        this.nextId = 1;
+        this.title = title;
+    }
+    addNote(tittle, content, author) {
+        const note = new Note(this.nextId, tittle, content, author);
+        this.nextId++;
+        this.notes.push(note);
+        return note;
+    }
+    removeNote(id) {
+        const index = this.notes.findIndex((note) => note.id === id);
+        if (index === -1) {
+            return false;
+        }
+        this.notes.splice(index, 1);
+        return true;
+    }
+    getNotes() {
+        return this.notes;
+    }
+}
+class Storage {
+    constructor() {
+        this.items = [];
+    }
+    addItem(item) {
+        this.items.push(item);
+    }
+    removeItem(item) {
+        this.items = this.items.filter((i) => i !== item);
+    }
+    getAllItems() {
+        return this.items;
+    }
+}
+const user1 = new User(1, "Ahmed", "ahmed@gmail.com", "12345678", "01012345678", 21);
+const admin1 = new Admin(2, "Mohamed", "mohamed@gmail.com", "admin1234", "01198765432", 35);
+user1.displayInfo();
+admin1.displayInfo();
+const notebook1 = new NoteBook("Study Notes");
+user1.addNotebook(notebook1);
+const note1 = notebook1.addNote("TypeScript", "Classes and inheritance are part of OOP in TypeScript", user1);
+const note2 = notebook1.addNote("Express", "Routes and middleware", user1);
+console.log(note1.preview());
+console.log(note2.preview());
+console.log(note1.author.name);
+console.log(notebook1.getNotes().length);
+admin1.manageNotes(notebook1, 2);
+console.log(notebook1.getNotes().length);
+const numberStorage = new Storage();
+numberStorage.addItem(10);
+numberStorage.addItem(20);
+numberStorage.addItem(30);
+numberStorage.removeItem(20);
+console.log(numberStorage.getAllItems());
+const noteStorage = new Storage();
+noteStorage.addItem(note1);
+console.log(noteStorage.getAllItems());
+export {};
